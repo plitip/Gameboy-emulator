@@ -271,9 +271,15 @@ uint8_t CPUstep(gb*g){
     case 0xD6: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; CPUsub(g, n, 0, 1);} return 8;
     case 0xDE: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; CPUsub(g, n, (g->F & FLAG_C) != 0, 1);} return 8;
     case 0xFE: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; CPUsub(g, n, 0, 0);} return 8;
+    //incs
+    case 0x04: g->B = CPUinc(g, g->B); return 4;
+    case 0x0C: g->C = CPUinc(g, g->C); return 4;
+    case 0x14: g->D = CPUinc(g, g->D); return 4;
+    case 0x1C: g->E = CPUinc(g, g->E); return 4;
+    case 0x24: g->H = CPUinc(g, g->H); return 4;
+    case 0x2C: g->L = CPUinc(g, g->L); return 4;
+    case 0x3C: g->A = CPUinc(g, g->A); return 4;
     
-    case 0x04: g->B = g->B + 1; g->F = g->F & FLAG_C; if (g->B == 0) g->F = g->F | FLAG_Z; if ((g->B & 0xF) == 0) g->F = g->F | FLAG_H; return 4;
-
     default:
     printf("unknown opcode %02X at %04X\n", opcode, g->pc - 1); //check
     return 4;

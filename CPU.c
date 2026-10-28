@@ -45,7 +45,13 @@ uint8_t CPUinc(gb*g, uint8_t value){
     if ((result & 0xF) == 0) g->F = g->F | FLAG_H;
     return result;
 }
-
+uint8_t CPUdec(gb*g, uint8_t value){
+    uint8_t result = value - 1;
+    g->F = (g->F & FLAG_C) | 1;
+    if (result == 0)         g->F = g->F | FLAG_Z;
+    if ((result & 0xF) == 0) g->F = g->F | FLAG_H;
+    return result;
+}
 uint8_t CPUstep(gb*g){
     uint8_t opcode = CPUread(g, g->pc);
     g->pc = g->pc + 1;
@@ -279,6 +285,7 @@ uint8_t CPUstep(gb*g){
     case 0x24: g->H = CPUinc(g, g->H); return 4;
     case 0x2C: g->L = CPUinc(g, g->L); return 4;
     case 0x3C: g->A = CPUinc(g, g->A); return 4;
+    case 0x34: {uint16_t HL = (g->H << 8) | g->L; CPUwrite(g, HL, CPUinc(g, CPUread(g, HL)));} return 12;
     
     default:
     printf("unknown opcode %02X at %04X\n", opcode, g->pc - 1); //check

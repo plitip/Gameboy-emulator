@@ -139,6 +139,13 @@ uint8_t CPUstep(gb*g){
     case 0x2A: {uint16_t HL=(g->H << 8) | g->L; g->A = CPUread(g, HL); HL=HL+1; g->H=HL>>8; g->L = HL&0xFF;} return 8;
     case 0x32: {uint16_t HL=(g->H << 8) | g->L; CPUwrite(g, HL, g->A); HL=HL-1; g->H=HL>>8; g->L = HL&0xFF;} return 8;
     case 0x3A: {uint16_t HL=(g->H << 8) | g->L; g->A = CPUread(g, HL); HL=HL-1; g->H=HL>>8; g->L = HL&0xFF;} return 8;
+
+    case 0xEA: {uint8_t first=CPUread(g, g->pc);g->pc = g->pc + 1; ;uint8_t second =CPUread(g, g->pc);g->pc = g->pc + 1; uint16_t Both=(second << 8) | first; CPUwrite(g,Both,g->A);} return 16;
+    case 0xFA: {uint8_t first=CPUread(g, g->pc); g->pc = g->pc + 1; uint8_t second=CPUread(g, g->pc); g->pc = g->pc + 1; uint16_t Both=(second << 8) | first; g->A = CPUread(g, Both);} return 16;
+    case 0xE0: {uint8_t n=CPUread(g, g->pc); g->pc = g->pc + 1; CPUwrite(g, 0xFF00 + n, g->A);} return 12;
+    case 0xF0: {uint8_t n=CPUread(g, g->pc); g->pc = g->pc + 1; g->A = CPUread(g, 0xFF00 + n);} return 12;
+    case 0xE2: CPUwrite(g, 0xFF00 + g->C, g->A); return 8;
+    case 0xF2: g->A = CPUread(g, 0xFF00 + g->C); return 8;
     default:
     printf("unknown opcode %02X at %04X\n", opcode, g->pc - 1); //check
     return 4;

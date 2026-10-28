@@ -134,7 +134,11 @@ uint8_t CPUstep(gb*g){
     case 0x1A: g->A=CPUread(g, (g->D << 8) | g->E); return 8;
     case 0x02: CPUwrite(g, (g->B << 8) | g->C, g->A); return 8;
     case 0x12: CPUwrite(g, (g->D << 8) | g->E, g->A); return 8;
-    
+
+    case 0x22: {uint16_t HL=(g->H << 8) | g->L;CPUwrite(g, HL, g->A); HL=HL+1; g->H=HL>>8; g->L = HL&0xFF;}return 8;
+    case 0x2A: {uint16_t HL=(g->H << 8) | g->L; g->A = CPUread(g, HL); HL=HL+1; g->H=HL>>8; g->L = HL&0xFF;} return 8;
+    case 0x32: {uint16_t HL=(g->H << 8) | g->L; CPUwrite(g, HL, g->A); HL=HL-1; g->H=HL>>8; g->L = HL&0xFF;} return 8;
+    case 0x3A: {uint16_t HL=(g->H << 8) | g->L; g->A = CPUread(g, HL); HL=HL-1; g->H=HL>>8; g->L = HL&0xFF;} return 8;
     default:
     printf("unknown opcode %02X at %04X\n", opcode, g->pc - 1); //check
     return 4;

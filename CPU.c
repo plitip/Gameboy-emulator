@@ -38,6 +38,14 @@ void CPUsub(gb*g, uint8_t value, uint8_t carry, uint8_t keep){
     if (keep) g->A = result;
 }
 
+uint8_t CPUinc(gb*g, uint8_t value){
+    uint8_t result = value + 1;
+    g->F = g->F & FLAG_C;
+    if (result == 0)         g->F = g->F | FLAG_Z;
+    if ((result & 0xF) == 0) g->F = g->F | FLAG_H;
+    return result;
+}
+
 uint8_t CPUstep(gb*g){
     uint8_t opcode = CPUread(g, g->pc);
     g->pc = g->pc + 1;
@@ -263,6 +271,8 @@ uint8_t CPUstep(gb*g){
     case 0xD6: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; CPUsub(g, n, 0, 1);} return 8;
     case 0xDE: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; CPUsub(g, n, (g->F & FLAG_C) != 0, 1);} return 8;
     case 0xFE: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; CPUsub(g, n, 0, 0);} return 8;
+    
+    case 0x04: g->B = g->B + 1; g->F = g->F & FLAG_C; if (g->B == 0) g->F = g->F | FLAG_Z; if ((g->B & 0xF) == 0) g->F = g->F | FLAG_H; return 4;
 
     default:
     printf("unknown opcode %02X at %04X\n", opcode, g->pc - 1); //check

@@ -4,6 +4,7 @@
 #include "gb.h"
 
 #endif
+#include "cpu.c"
 #include <stdint.h>
 #include <stddef.h>
 

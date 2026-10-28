@@ -8,10 +8,26 @@ SDL_RenderClear(renderer);
 SDL_SetRenderDrawColor(renderer,255, 255, 255, 255);
     for (int row_counter =0;144>row_counter;row_counter++){
         for (int col_counter =0;160>col_counter;col_counter++){
-            if (screen_par[row_counter * 160 + col_counter] == 1) {
+            if (screen_par[row_counter * 160 + col_counter] == 0) {
             SDL_Rect rect = {col_counter*3, row_counter*3, 3, 3};
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderFillRect(renderer, &rect);
             }
+            else if (screen_par[row_counter * 160 + col_counter] == 1) {
+            SDL_Rect rect = {col_counter*3, row_counter*3, 3, 3};
+            SDL_SetRenderDrawColor(renderer, 170, 170, 170, 255);
+            SDL_RenderFillRect(renderer, &rect);
+            }
+            else if (screen_par[row_counter * 160 + col_counter] == 2) {
+            SDL_Rect rect = {col_counter*3, row_counter*3, 3, 3};
+            SDL_SetRenderDrawColor(renderer, 85, 85, 85, 255);
+            SDL_RenderFillRect(renderer, &rect);
+            } else {
+            SDL_Rect rect = {col_counter*3, row_counter*3, 3, 3};
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderFillRect(renderer, &rect);
+            }
+        
     }
 }
 }
@@ -32,6 +48,7 @@ int main(int argc, char *argv[]){
     break;
     }
     }
+    gb_run_frame(g);
     draw_term(screen_par);
     SDL_RenderPresent(renderer);
 }

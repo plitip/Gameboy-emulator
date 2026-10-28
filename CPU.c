@@ -129,8 +129,15 @@ uint8_t CPUstep(gb*g){
     case 0x7E: g->A = CPUread(g, (g->H << 8) | g->L); return 8;
     case 0x7F: return 4;
 
+    case 0x36:  CPUwrite(g, (g->H << 8) | g->L, CPUread(g, g->pc)); g->pc = g->pc + 1; return 12;
+    case 0x0A: g->A=CPUread(g, (g->B << 8) | g->C); return 8;
+    case 0x1A: g->A=CPUread(g, (g->D << 8) | g->E); return 8;
+    case 0x02: CPUwrite(g, (g->B << 8) | g->C, g->A); return 8;
+    case 0x12: CPUwrite(g, (g->D << 8) | g->E, g->A); return 8;
+    
     default:
     printf("unknown opcode %02X at %04X\n", opcode, g->pc - 1); //check
     return 4;
+
     }
 }

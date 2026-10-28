@@ -146,6 +146,41 @@ uint8_t CPUstep(gb*g){
     case 0xF0: {uint8_t n=CPUread(g, g->pc); g->pc = g->pc + 1; g->A = CPUread(g, 0xFF00 + n);} return 12;
     case 0xE2: CPUwrite(g, 0xFF00 + g->C, g->A); return 8;
     case 0xF2: g->A = CPUread(g, 0xFF00 + g->C); return 8;
+
+    case 0xA8:g->A=g->A^ g->B; if (g->A==0){g->F=0x80;}else{g->F=0;}return 4;
+    /* AND A, r  -- Z if A is 0, N=0, H=1, C=0 */
+    case 0xA0: g->A = g->A & g->B; if (g->A==0){g->F=0xA0;}else{g->F=0x20;} return 4;
+    case 0xA1: g->A = g->A & g->C; if (g->A==0){g->F=0xA0;}else{g->F=0x20;} return 4;
+    case 0xA2: g->A = g->A & g->D; if (g->A==0){g->F=0xA0;}else{g->F=0x20;} return 4;
+    case 0xA3: g->A = g->A & g->E; if (g->A==0){g->F=0xA0;}else{g->F=0x20;} return 4;
+    case 0xA4: g->A = g->A & g->H; if (g->A==0){g->F=0xA0;}else{g->F=0x20;} return 4;
+    case 0xA5: g->A = g->A & g->L; if (g->A==0){g->F=0xA0;}else{g->F=0x20;} return 4;
+    case 0xA6: g->A = g->A & CPUread(g, (g->H << 8) | g->L); if (g->A==0){g->F=0xA0;}else{g->F=0x20;} return 8;
+    case 0xA7: g->A = g->A & g->A; if (g->A==0){g->F=0xA0;}else{g->F=0x20;} return 4;
+    case 0xE6: g->A = g->A & CPUread(g, g->pc); g->pc = g->pc + 1; if (g->A==0){g->F=0xA0;}else{g->F=0x20;} return 8;
+
+    /* XOR A, r  -- Z if A is 0, N=0, H=0, C=0 */
+    case 0xA8: g->A = g->A ^ g->B; if (g->A==0){g->F=0x80;}else{g->F=0;} return 4;
+    case 0xA9: g->A = g->A ^ g->C; if (g->A==0){g->F=0x80;}else{g->F=0;} return 4;
+    case 0xAA: g->A = g->A ^ g->D; if (g->A==0){g->F=0x80;}else{g->F=0;} return 4;
+    case 0xAB: g->A = g->A ^ g->E; if (g->A==0){g->F=0x80;}else{g->F=0;} return 4;
+    case 0xAC: g->A = g->A ^ g->H; if (g->A==0){g->F=0x80;}else{g->F=0;} return 4;
+    case 0xAD: g->A = g->A ^ g->L; if (g->A==0){g->F=0x80;}else{g->F=0;} return 4;
+    case 0xAE: g->A = g->A ^ CPUread(g, (g->H << 8) | g->L); if (g->A==0){g->F=0x80;}else{g->F=0;} return 8;
+    case 0xAF: g->A = 0; g->F = 0x80; return 4;
+    case 0xEE: g->A = g->A ^ CPUread(g, g->pc); g->pc = g->pc + 1; if (g->A==0){g->F=0x80;}else{g->F=0;} return 8;
+
+    /* OR A, r  -- Z if A is 0, N=0, H=0, C=0 */
+    case 0xB0: g->A = g->A | g->B; if (g->A==0){g->F=0x80;}else{g->F=0;} return 4;
+    case 0xB1: g->A = g->A | g->C; if (g->A==0){g->F=0x80;}else{g->F=0;} return 4;
+    case 0xB2: g->A = g->A | g->D; if (g->A==0){g->F=0x80;}else{g->F=0;} return 4;
+    case 0xB3: g->A = g->A | g->E; if (g->A==0){g->F=0x80;}else{g->F=0;} return 4;
+    case 0xB4: g->A = g->A | g->H; if (g->A==0){g->F=0x80;}else{g->F=0;} return 4;
+    case 0xB5: g->A = g->A | g->L; if (g->A==0){g->F=0x80;}else{g->F=0;} return 4;
+    case 0xB6: g->A = g->A | CPUread(g, (g->H << 8) | g->L); if (g->A==0){g->F=0x80;}else{g->F=0;} return 8;
+    case 0xB7: g->A = g->A | g->A; if (g->A==0){g->F=0x80;}else{g->F=0;} return 4;
+    case 0xF6: g->A = g->A | CPUread(g, g->pc); g->pc = g->pc + 1; if (g->A==0){g->F=0x80;}else{g->F=0;} return 8;
+    
     default:
     printf("unknown opcode %02X at %04X\n", opcode, g->pc - 1); //check
     return 4;

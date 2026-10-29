@@ -47,9 +47,9 @@ uint8_t CPUinc(gb*g, uint8_t value){
 }
 uint8_t CPUdec(gb*g, uint8_t value){
     uint8_t result = value - 1;
-    g->F = (g->F & FLAG_C) | 1;
+    g->F = (g->F & FLAG_C) | FLAG_N;
     if (result == 0)         g->F = g->F | FLAG_Z;
-    if ((result & 0xF) == 0) g->F = g->F | FLAG_H;
+    if ((result & 0xF) == 0x0F) g->F = g->F | FLAG_H;
     return result;
 }
 uint8_t CPUstep(gb*g){
@@ -286,6 +286,15 @@ uint8_t CPUstep(gb*g){
     case 0x2C: g->L = CPUinc(g, g->L); return 4;
     case 0x3C: g->A = CPUinc(g, g->A); return 4;
     case 0x34: {uint16_t HL = (g->H << 8) | g->L; CPUwrite(g, HL, CPUinc(g, CPUread(g, HL)));} return 12;
+    
+    case 0x05: g->B= CPUdec(g,g->B); return 4;
+    case 0x0D: g->C= CPUdec(g, g->C); return 4;
+    case 0x15: g->D= CPUdec(g, g->D); return 4;
+    case 0x1D: g->E= CPUdec(g, g->E); return 4;
+    case 0x25: g->H= CPUdec(g, g->H); return 4;
+    case 0x2D: g->L= CPUdec(g, g->L); return 4;
+    case 0x3D: g->A= CPUdec(g, g->A); return 4;
+    case 0x35: {uint16_t HL = (g->H << 8) | g->L; CPUwrite(g, HL, CPUdec(g, CPUread(g, HL)));} return 12;
     
     default:
     printf("unknown opcode %02X at %04X\n", opcode, g->pc - 1); //check

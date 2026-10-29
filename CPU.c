@@ -304,6 +304,15 @@ uint8_t CPUstep(gb*g){
     
     case 0x08: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; uint8_t m = CPUread(g, g->pc);g->pc = g->pc + 1;uint16_t address = (m << 8) | n; uint8_t low  = g->sp & 0xFF; uint8_t high = g->sp >> 8; CPUwrite(g, address, low); CPUwrite(g, address+1,high); return 20;}
     case 0xF9: g->sp = (g->H << 8) | g->L; return 8;
+
+    case 0x03:  {uint16_t BC = (g->B << 8) | g->C; BC=BC+1; g->B = BC >> 8;  g->C = BC & 0xFF;return 8;} 
+    case 0x13: {uint16_t DE = (g->D << 8) | g->E; DE = DE + 1; g->D = DE >> 8; g->E = DE & 0xFF;} return 8;
+    case 0x23: {uint16_t HL = (g->H << 8) | g->L; HL = HL + 1; g->H = HL >> 8; g->L = HL & 0xFF;} return 8;
+    case 0x33: g->sp = g->sp + 1; return 8;
+    case 0x0B: {uint16_t BC = (g->B << 8) | g->C; BC = BC - 1; g->B = BC >> 8; g->C = BC & 0xFF;} return 8;
+    case 0x1B: {uint16_t DE = (g->D << 8) | g->E; DE = DE - 1; g->D = DE >> 8; g->E = DE & 0xFF;} return 8;
+    case 0x2B: {uint16_t HL = (g->H << 8) | g->L; HL = HL - 1; g->H = HL >> 8; g->L = HL & 0xFF;} return 8;
+    case 0x3B: g->sp = g->sp - 1; return 8;
     default:
     printf("unknown opcode %02X at %04X\n", opcode, g->pc - 1); //check
     return 4;

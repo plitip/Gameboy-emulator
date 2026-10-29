@@ -295,10 +295,14 @@ uint8_t CPUstep(gb*g){
     case 0x2D: g->L= CPUdec(g, g->L); return 4;
     case 0x3D: g->A= CPUdec(g, g->A); return 4;
     case 0x35: {uint16_t HL = (g->H << 8) | g->L; CPUwrite(g, HL, CPUdec(g, CPUread(g, HL)));} return 12;
-    
+
+        /* LD rr, nn  low byte first */
+    case 0x01: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; uint8_t m = CPUread(g, g->pc); g->pc = g->pc + 1; g->B = m; g->C = n;} return 12;
+    case 0x11: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; uint8_t m = CPUread(g, g->pc); g->pc = g->pc + 1; g->D = m; g->E = n;} return 12;
+    case 0x21: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; uint8_t m = CPUread(g, g->pc); g->pc = g->pc + 1; g->H = m; g->L = n;} return 12;
+    case 0x31: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; uint8_t m = CPUread(g, g->pc); g->pc = g->pc + 1; g->sp = (m << 8) | n;} return 12;
     default:
     printf("unknown opcode %02X at %04X\n", opcode, g->pc - 1); //check
     return 4;
-
     }
 }

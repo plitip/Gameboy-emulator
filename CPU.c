@@ -301,6 +301,9 @@ uint8_t CPUstep(gb*g){
     case 0x11: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; uint8_t m = CPUread(g, g->pc); g->pc = g->pc + 1; g->D = m; g->E = n;} return 12;
     case 0x21: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; uint8_t m = CPUread(g, g->pc); g->pc = g->pc + 1; g->H = m; g->L = n;} return 12;
     case 0x31: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; uint8_t m = CPUread(g, g->pc); g->pc = g->pc + 1; g->sp = (m << 8) | n;} return 12;
+    
+    case 0x08: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; uint8_t m = CPUread(g, g->pc);g->pc = g->pc + 1;uint16_t address = (m << 8) | n; uint8_t low  = g->sp & 0xFF; uint8_t high = g->sp >> 8; CPUwrite(g, address, low); CPUwrite(g, address+1,high); return 20;}
+    case 0xF9: g->sp = (g->H << 8) | g->L; return 8;
     default:
     printf("unknown opcode %02X at %04X\n", opcode, g->pc - 1); //check
     return 4;

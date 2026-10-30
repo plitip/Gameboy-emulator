@@ -305,7 +305,7 @@ uint8_t CPUstep(gb*g){
     case 0x08: {uint8_t n = CPUread(g, g->pc); g->pc = g->pc + 1; uint8_t m = CPUread(g, g->pc);g->pc = g->pc + 1;uint16_t address = (m << 8) | n; uint8_t low  = g->sp & 0xFF; uint8_t high = g->sp >> 8; CPUwrite(g, address, low); CPUwrite(g, address+1,high); return 20;}
     case 0xF9: g->sp = (g->H << 8) | g->L; return 8;
 
-    case 0x03:  {uint16_t BC = (g->B << 8) | g->C; BC=BC+1; g->B = BC >> 8;  g->C = BC & 0xFF;return 8;} 
+    case 0x03:  {uint16_t BC = (g->B << 8) | g->C; BC=BC+1; g->B = BC >> 8;  g->C = BC & 0xFF;}return 8;
     case 0x13: {uint16_t DE = (g->D << 8) | g->E; DE = DE + 1; g->D = DE >> 8; g->E = DE & 0xFF;} return 8;
     case 0x23: {uint16_t HL = (g->H << 8) | g->L; HL = HL + 1; g->H = HL >> 8; g->L = HL & 0xFF;} return 8;
     case 0x33: g->sp = g->sp + 1; return 8;
@@ -313,6 +313,15 @@ uint8_t CPUstep(gb*g){
     case 0x1B: {uint16_t DE = (g->D << 8) | g->E; DE = DE - 1; g->D = DE >> 8; g->E = DE & 0xFF;} return 8;
     case 0x2B: {uint16_t HL = (g->H << 8) | g->L; HL = HL - 1; g->H = HL >> 8; g->L = HL & 0xFF;} return 8;
     case 0x3B: g->sp = g->sp - 1; return 8;
+    
+    /* ADD HL, rr  -- Z kept, N=0, H from bit 11, C from bit 15 */
+    case 0x09: {uint16_t HL = (g->H << 8) | g->L; uint16_t BC = (g->B << 8) | g->C; uint16_t half = (HL & 0xFFF) + (BC & 0xFFF); uint32_t full = HL + BC; g->F = g->F & FLAG_Z; if (half > 0xFFF) g->F = g->F | FLAG_H; if (full > 0xFFFF) g->F = g->F | FLAG_C; g->H = (full >> 8) & 0xFF; g->L = full & 0xFF;} return 8;
+    case 0x19: {uint16_t HL = (g->H << 8) | g->L; uint16_t DE = (g->D << 8) | g->E; uint16_t half = (HL & 0xFFF) + (DE & 0xFFF); uint32_t full = HL + DE; g->F = g->F & FLAG_Z; if (half > 0xFFF) g->F = g->F | FLAG_H; if (full > 0xFFFF) g->F = g->F | FLAG_C; g->H = (full >> 8) & 0xFF; g->L = full & 0xFF;} return 8;
+    case 0x29: {uint16_t HL = (g->H << 8) | g->L; uint16_t half = (HL & 0xFFF) + (HL & 0xFFF); uint32_t full = HL + HL; g->F = g->F & FLAG_Z; if (half > 0xFFF) g->F = g->F | FLAG_H; if (full > 0xFFFF) g->F = g->F | FLAG_C; g->H = (full >> 8) & 0xFF; g->L = full & 0xFF;} return 8;
+    case 0x39: {uint16_t HL = (g->H << 8) | g->L; uint16_t half = (HL & 0xFFF) + (g->sp & 0xFFF); uint32_t full = HL + g->sp; g->F = g->F & FLAG_Z; if (half > 0xFFF) g->F = g->F | FLAG_H; if (full > 0xFFFF) g->F = g->F | FLAG_C; g->H = (full >> 8) & 0xFF; g->L = full & 0xFF;} return 8;
+    
+    /* PUSH POP!!*/
+    case 0xC5: {sp = g->sp-1;CPUwrite(g, sp, g->B); CPUwrite(g, sp, g->C); return 16;}
     default:
     printf("unknown opcode %02X at %04X\n", opcode, g->pc - 1); //check
     return 4;
